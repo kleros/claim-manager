@@ -81,13 +81,15 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       address _arbitrator,
       address _insurer,
       uint256 _counterOfferPeriod,
-      string calldata _metaEvidence,
-      bytes calldata _arbitratorExtraData
+      uint256 _challengePeriod,
+      string memory _metaEvidence,
+      bytes memory _arbitratorExtraData
   ) {
-    claimUtils = _claimUtils;
-    arbitrator = _arbitrator;
+    claimUtils = IClaimUtils(_claimUtils);
+    arbitrator = IArbitrator(_arbitrator);
     insurer = _insurer;
     counterOfferPeriod = _counterOfferPeriod;
+    challengePeriod = _challengePeriod;
     arbitratorExtraData = _arbitratorExtraData;
     emit MetaEvidence(0, _metaEvidence);
   }
