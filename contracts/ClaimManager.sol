@@ -244,11 +244,11 @@ contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitra
       emit ClaimResolved(claimId, 0);
     } else if (_ruling == 2) {
       emit ClaimResolved(claimId, claim.claimedAmount);
-      updateAccumulatedPayouts(uint224(claim.claimedAmount));
+      updateAccumulatedPayouts(claim.claimedAmount);
       claimUtils.payOutClaim(claim.beneficiary, claim.claimedAmount);
     } else if (_ruling == 3) {
       emit ClaimResolved(claimId, claim.counterOfferAmount);
-      updateAccumulatedPayouts(uint224(claim.claimedAmount));
+      updateAccumulatedPayouts(claim.claimedAmount);
       claimUtils.payOutClaim(claim.beneficiary, claim.counterOfferAmount);
     }
   }

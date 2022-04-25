@@ -10,8 +10,8 @@
 pragma solidity 0.8.12;
 contract LimitedClaimManager {
     struct Checkpoint {
-        uint32 fromTimestamp;
-        uint224 value;
+        uint256 fromTimestamp;
+        uint256 value;
     }
   
     Checkpoint[] public accumulatedPayouts;
@@ -22,23 +22,23 @@ contract LimitedClaimManager {
         claimPayoutLimitPeriod = _claimPayoutLimitPeriod;
         claimPayoutLimitAmount = _claimPayoutLimitAmount;
         accumulatedPayouts.push(Checkpoint({
-            fromTimestamp: uint32(block.timestamp),
+            fromTimestamp: block.timestamp,
             value: 0
             }));
     }
   
     // Call this before paying out
     // It's not implemented as a modifier because it's not cool for modifiers to change state
-    function updateAccumulatedPayouts(uint224 payoutAmount) internal {
-        uint224 accumulatedPayoutsNow = payoutAmount;
+    function updateAccumulatedPayouts(uint256 payoutAmount) internal {
+        uint256 accumulatedPayoutsNow = payoutAmount;
         if (accumulatedPayouts.length > 0) {
           accumulatedPayoutsNow += accumulatedPayouts[accumulatedPayouts.length - 1].value;
         }
         accumulatedPayouts.push(Checkpoint({
-            fromTimestamp: uint32(block.timestamp),
+            fromTimestamp: block.timestamp,
             value: accumulatedPayoutsNow
             }));
-        uint224 accumulatedPayoutsThen = getValueAt(accumulatedPayouts, block.timestamp - claimPayoutLimitPeriod);
+        uint256 accumulatedPayoutsThen = getValueAt(accumulatedPayouts, block.timestamp - claimPayoutLimitPeriod);
         require(accumulatedPayoutsNow - accumulatedPayoutsThen <= claimPayoutLimitAmount, "Payout limit exceeded");
     }
 
@@ -49,7 +49,7 @@ contract LimitedClaimManager {
         )
         private
         view
-        returns (uint224)
+        returns (uint256)
     {
         if (checkpoints.length == 0)
             return 0;
