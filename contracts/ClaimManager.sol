@@ -14,8 +14,9 @@ import "@kleros/erc-792/contracts/erc-1497/IEvidence.sol";
 
 import "./interfaces/IClaimUtils.sol";
 import "./IClaimManager.sol";
+import "./LimitedClaimManager.sol";
 
-contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
+contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitrable {
   /**
    * 0: Don't pay. (Refuse to arbitrate)
    * 1: Deny that an insured event has happened. (Don't pay)
@@ -83,8 +84,10 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       uint256 _counterOfferPeriod,
       uint256 _challengePeriod,
       string memory _metaEvidence,
-      bytes memory _arbitratorExtraData
-  ) {
+      bytes memory _arbitratorExtraData,
+      uint256 _claimPayoutLimitPeriod,
+      uint256 _claimPayoutLimitAmount
+  ) LimitedClaimManager(_claimPayoutLimitPeriod, _claimPayoutLimitAmount) {
     claimUtils = IClaimUtils(_claimUtils);
     arbitrator = IArbitrator(_arbitrator);
     insurer = _insurer;
@@ -241,9 +244,11 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       emit ClaimResolved(claimId, 0);
     } else if (_ruling == 2) {
       emit ClaimResolved(claimId, claim.claimedAmount);
+      updateAccumulatedPayouts(uint224(claim.claimedAmount));
       claimUtils.payOutClaim(claim.beneficiary, claim.claimedAmount);
     } else if (_ruling == 3) {
       emit ClaimResolved(claimId, claim.counterOfferAmount);
+      updateAccumulatedPayouts(uint224(claim.claimedAmount));
       claimUtils.payOutClaim(claim.beneficiary, claim.counterOfferAmount);
     }
   }
