@@ -19,7 +19,6 @@ interface IClaimManager {
   function claimInsurance(
     address _beneficiary,
     uint256 _coverage,
-    uint256 _startTime,
     uint256 _endTime,
     string calldata _documentIpfsCidV1,
     uint256 _claimedAmount,

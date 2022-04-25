@@ -63,7 +63,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     address claimant,
     address beneficiary,
     uint256 coverage,
-    uint256 startTime,
     uint256 endTime,
     string documentIpfsCidV1
     );
@@ -108,7 +107,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     address _claimant,
     address _beneficiary,
     uint256 _coverage,
-    uint256 _startTime,
     uint256 _endTime,
     string calldata _documentIpfsCidV1
   ) external {
@@ -117,7 +115,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       _claimant,
       _beneficiary,
       _coverage,
-      _startTime,
       _endTime,
       _documentIpfsCidV1
       ))] = true;
@@ -125,7 +122,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       _claimant,
       _beneficiary,
       _coverage,
-      _startTime,
       _endTime,
       _documentIpfsCidV1
       );
@@ -141,7 +137,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   function claimInsurance(
     address _beneficiary,
     uint256 _coverage,
-    uint256 _startTime,
     uint256 _endTime,
     string calldata _documentIpfsCidV1,
     uint256 _claimedAmount,
@@ -151,11 +146,10 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
         msg.sender,
         _beneficiary,
         _coverage,
-        _startTime,
         _endTime,
         _documentIpfsCidV1
         ))], "Policy does not exist");
-      require(block.timestamp >= _startTime && block.timestamp <= _endTime, "Policy is not active");
+      require(block.timestamp <= _endTime, "Policy has expired");
       require(_claimedAmount <= _coverage, "Claim amount larger than coverage");
 
     Claim storage claim = claims[claimCount++];
