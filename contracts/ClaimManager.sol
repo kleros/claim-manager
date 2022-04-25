@@ -66,7 +66,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   uint256 public immutable challengePeriod; // counter offer to challenge or accept
 
   uint256 public claimCount; // on remaking this contract, should be changed for the insurer
-  bytes immutable arbitratorExtraData;
+  bytes public arbitratorExtraData;
   mapping(uint256 => Claim) public claims;
   mapping(uint256 => uint256) public disputeIdToClaimId;
 
