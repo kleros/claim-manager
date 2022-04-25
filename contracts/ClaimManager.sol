@@ -142,15 +142,15 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     uint256 _claimedAmount,
     string calldata _evidence
     ) external {
-      require(policyWithHashExists[keccak256(abi.encodePacked(
-        msg.sender,
-        _beneficiary,
-        _coverage,
-        _endTime,
-        _documentIpfsCidV1
-        ))], "Policy does not exist");
-      require(block.timestamp <= _endTime, "Policy has expired");
-      require(_claimedAmount <= _coverage, "Claim amount larger than coverage");
+    require(policyWithHashExists[keccak256(abi.encodePacked(
+      msg.sender,
+      _beneficiary,
+      _coverage,
+      _endTime,
+      _documentIpfsCidV1
+      ))], "Policy does not exist");
+    require(block.timestamp <= _endTime, "Policy has expired");
+    require(_claimedAmount <= _coverage, "Claim amount larger than coverage");
 
     Claim storage claim = claims[claimCount++];
     claim.claimant = msg.sender;
