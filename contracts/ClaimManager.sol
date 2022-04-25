@@ -60,6 +60,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   );
 
   event CreatedPolicy(
+    bytes32 indexed policyHash,
     address claimant,
     address beneficiary,
     uint256 coverage,
@@ -109,16 +110,18 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     uint256 _coverage,
     uint256 _endTime,
     string calldata _documentIpfsCidV1
-  ) external {
+  ) external returns (bytes32 policyHash) {
     require(msg.sender == insurer, "Only insurer can create policy");
-    policyWithHashExists[keccak256(abi.encodePacked(
+    policyHash = keccak256(abi.encodePacked(
       _claimant,
       _beneficiary,
       _coverage,
       _endTime,
       _documentIpfsCidV1
-      ))] = true;
+      ));
+    policyWithHashExists[policyHash] = true;
     emit CreatedPolicy(
+      policyHash,
       _claimant,
       _beneficiary,
       _coverage,
