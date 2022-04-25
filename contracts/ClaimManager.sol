@@ -59,7 +59,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     Party _side
   );
 
-  event PublishedPolicy(
+  event CreatedPolicy(
     address claimant,
     address beneficiary,
     uint256 coverage,
@@ -103,14 +103,14 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     emit MetaEvidence(0, _metaEvidence);
   }
 
-  function publishPolicy(
+  function createPolicy(
     address _claimant,
     address _beneficiary,
     uint256 _coverage,
     uint256 _endTime,
     string calldata _documentIpfsCidV1
   ) external {
-    require(msg.sender == insurer, "Only insurer can publish policy");
+    require(msg.sender == insurer, "Only insurer can create policy");
     policyWithHashExists[keccak256(abi.encodePacked(
       _claimant,
       _beneficiary,
@@ -118,7 +118,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       _endTime,
       _documentIpfsCidV1
       ))] = true;
-    emit PublishedPolicy(
+    emit CreatedPolicy(
       _claimant,
       _beneficiary,
       _coverage,
