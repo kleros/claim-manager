@@ -59,6 +59,15 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     Party _side
   );
 
+  event PublishedPolicy(
+    address claimant,
+    address beneficiary,
+    uint256 coverage,
+    uint256 startTime,
+    uint256 endTime,
+    string documentIpfsCidV1
+    );
+
   IClaimUtils public immutable claimUtils;
   address public immutable insurer;
   IArbitrator public immutable arbitrator;
@@ -69,6 +78,8 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   bytes public arbitratorExtraData;
   mapping(uint256 => Claim) public claims;
   mapping(uint256 => uint256) public disputeIdToClaimId;
+  mapping(uint256 => bytes32) public policyIndexToHash;
+  uint256 public policyCount;
 
   // Appealing / contribution related data (unused)
   /** rounds[claimId][round]
@@ -92,6 +103,34 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     challengePeriod = _challengePeriod;
     arbitratorExtraData = _arbitratorExtraData;
     emit MetaEvidence(0, _metaEvidence);
+  }
+
+  function publishPolicy(
+    address claimant,
+    address beneficiary,
+    uint256 coverage,
+    uint256 startTime,
+    uint256 endTime,
+    string calldata documentIpfsCidV1
+  ) external returns (uint256 policyIndex) {
+    require(msg.sender == insurer, "Only insurer can publish policy");
+    policyIndex = policyCount++;
+    policyIndexToHash[policyIndex] = keccak256(abi.encodePacked(
+      claimant,
+      beneficiary,
+      coverage,
+      startTime,
+      endTime,
+      documentIpfsCidV1
+      ));
+    emit PublishedPolicy(
+    claimant,
+    beneficiary,
+    coverage,
+    startTime,
+    endTime,
+    documentIpfsCidV1
+    );
   }
 
   /**
