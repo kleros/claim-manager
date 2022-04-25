@@ -138,7 +138,26 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
    * arguments defending the damage warrants a compensation
    * and an estimation of the compensation required by the terms of the policy
    */
-  function claimInsurance(uint256 _claimedAmount, address _beneficiary, string calldata _evidence) external {
+  function claimInsurance(
+    address _beneficiary,
+    uint256 _coverage,
+    uint256 _startTime,
+    uint256 _endTime,
+    string calldata _documentIpfsCidV1,
+    uint256 _claimedAmount,
+    string calldata _evidence
+    ) external {
+      require(policyWithHashExists[keccak256(abi.encodePacked(
+        msg.sender,
+        _beneficiary,
+        _coverage,
+        _startTime,
+        _endTime,
+        _documentIpfsCidV1
+        ))], "Policy does not exist");
+      require(block.timestamp >= _startTime && block.timestamp <= _endTime, "Policy is not active");
+      require(_claimedAmount <= _coverage, "Claim amount larger than coverage");
+
     Claim storage claim = claims[claimCount++];
     claim.claimant = msg.sender;
     claim.beneficiary = _beneficiary;

@@ -16,7 +16,15 @@ interface IClaimManager {
   event CounterOffer(uint256 _claimId, uint256 _counterOfferAmount);
   event ClaimResolved(uint256 _claimId, uint256 _settlement);
 
-  function claimInsurance(uint256 _claimedAmount, address _beneficiary, string calldata _evidence) external;
+  function claimInsurance(
+    address _beneficiary,
+    uint256 _coverage,
+    uint256 _startTime,
+    uint256 _endTime,
+    string calldata _documentIpfsCidV1,
+    uint256 _claimedAmount,
+    string calldata _evidence
+    ) external;
 
   function acceptClaim(uint256 _claimId) external;
 
