@@ -60,18 +60,8 @@ contract LimitedClaimManager {
         if (_timestamp < checkpoints[0].fromTimestamp)
             return 0;
 
-        // Limit the search to the last 1024 elements if the value being
-        // searched falls within that window
-        uint min = 0;
-        if (
-            checkpoints.length > 1024
-                && checkpoints[checkpoints.length - 1024].fromTimestamp < _timestamp
-            )
-        {
-            min = checkpoints.length - 1024;
-        }
-
         // Binary search of the value in the array
+        uint min = 0;
         uint max = checkpoints.length - 1;
         while (max > min) {
             uint mid = (max + min + 1) / 2;
