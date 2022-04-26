@@ -248,7 +248,7 @@ contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitra
       claimUtils.payOutClaim(claim.beneficiary, claim.claimedAmount);
     } else if (_ruling == 3) {
       emit ClaimResolved(claimId, claim.counterOfferAmount);
-      updateAccumulatedPayouts(claim.claimedAmount);
+      updateAccumulatedPayouts(claim.counterOfferAmount);
       claimUtils.payOutClaim(claim.beneficiary, claim.counterOfferAmount);
     }
   }
