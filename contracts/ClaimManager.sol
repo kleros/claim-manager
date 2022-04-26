@@ -14,9 +14,8 @@ import "@kleros/erc-792/contracts/erc-1497/IEvidence.sol";
 
 import "./interfaces/IClaimUtils.sol";
 import "./IClaimManager.sol";
-import "./LimitedClaimManager.sol";
 
-contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitrable {
+contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   /**
    * 0: Don't pay. (Refuse to arbitrate)
    * 1: Deny that an insured event has happened. (Don't pay)
@@ -84,10 +83,8 @@ contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitra
       uint256 _counterOfferPeriod,
       uint256 _challengePeriod,
       string memory _metaEvidence,
-      bytes memory _arbitratorExtraData,
-      uint256 _claimPayoutLimitPeriod,
-      uint256 _claimPayoutLimitAmount
-  ) LimitedClaimManager(_claimPayoutLimitPeriod, _claimPayoutLimitAmount) {
+      bytes memory _arbitratorExtraData
+  ) {
     claimUtils = IClaimUtils(_claimUtils);
     arbitrator = IArbitrator(_arbitrator);
     insurer = _insurer;
@@ -230,7 +227,7 @@ contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitra
   }
 
   // arbitrator is trusted
-  function rule(uint256 _disputeId, uint256 _ruling) external override {
+  function rule(uint256 _disputeId, uint256 _ruling) public virtual override {
     require(msg.sender == address(arbitrator), "Only arbitrator can rule");
     uint256 claimId = disputeIdToClaimId[_disputeId];
     Claim storage claim = claims[claimId];
@@ -244,11 +241,9 @@ contract ClaimManager is LimitedClaimManager, IEvidence, IClaimManager, IArbitra
       emit ClaimResolved(claimId, 0);
     } else if (_ruling == 2) {
       emit ClaimResolved(claimId, claim.claimedAmount);
-      updateAccumulatedPayouts(claim.claimedAmount);
       claimUtils.payOutClaim(claim.beneficiary, claim.claimedAmount);
     } else if (_ruling == 3) {
       emit ClaimResolved(claimId, claim.counterOfferAmount);
-      updateAccumulatedPayouts(claim.counterOfferAmount);
       claimUtils.payOutClaim(claim.beneficiary, claim.counterOfferAmount);
     }
   }

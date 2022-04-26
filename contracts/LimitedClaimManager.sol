@@ -8,7 +8,10 @@
  */
 
 pragma solidity 0.8.12;
-contract LimitedClaimManager {
+
+import "./ClaimManager.sol";
+
+contract LimitedClaimManager is ClaimManager {
     struct Checkpoint {
         uint256 fromTimestamp;
         uint256 value;
@@ -18,7 +21,18 @@ contract LimitedClaimManager {
     uint256 public immutable claimPayoutLimitPeriod;
     uint256 public immutable claimPayoutLimitAmount;
 
-    constructor(uint256 _claimPayoutLimitPeriod, uint256 _claimPayoutLimitAmount) {
+    constructor(
+        address _claimUtils,
+        address _arbitrator,
+        address _insurer,
+        uint256 _counterOfferPeriod,
+        uint256 _challengePeriod,
+        string memory _metaEvidence,
+        bytes memory _arbitratorExtraData,
+        uint256 _claimPayoutLimitPeriod,
+        uint256 _claimPayoutLimitAmount
+    ) ClaimManager(_claimUtils, _arbitrator, _insurer, _counterOfferPeriod, _challengePeriod, _metaEvidence, _arbitratorExtraData)
+    {
         claimPayoutLimitPeriod = _claimPayoutLimitPeriod;
         claimPayoutLimitAmount = _claimPayoutLimitAmount;
         accumulatedPayouts.push(Checkpoint({
@@ -27,9 +41,20 @@ contract LimitedClaimManager {
             }));
     }
   
+    function rule(uint256 _disputeId, uint256 _ruling) public virtual override {
+      ClaimManager.rule(_disputeId, _ruling);
+      if (_ruling == 2) {
+        Claim storage claim = claims[disputeIdToClaimId[_disputeId]];
+        updateAccumulatedPayouts(claim.claimedAmount);
+      } else if (_ruling == 3) {
+        Claim storage claim = claims[disputeIdToClaimId[_disputeId]];
+        updateAccumulatedPayouts(claim.counterOfferAmount);
+      }
+    }
+
     // Call this before paying out
     // It's not implemented as a modifier because it's not cool for modifiers to change state
-    function updateAccumulatedPayouts(uint256 payoutAmount) internal {
+    function updateAccumulatedPayouts(uint256 payoutAmount) private {
         uint256 accumulatedPayoutsNow = payoutAmount;
         if (accumulatedPayouts.length > 0) {
           accumulatedPayoutsNow += accumulatedPayouts[accumulatedPayouts.length - 1].value;
