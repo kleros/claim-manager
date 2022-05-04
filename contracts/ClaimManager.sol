@@ -66,7 +66,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   uint256 public immutable challengePeriod; // counter offer to challenge or accept
 
   uint256 public claimCount; // on remaking this contract, should be changed for the insurer
-  bytes immutable arbitratorExtraData;
+  bytes public arbitratorExtraData;
   mapping(uint256 => Claim) public claims;
   mapping(uint256 => uint256) public disputeIdToClaimId;
 
@@ -81,13 +81,15 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       address _arbitrator,
       address _insurer,
       uint256 _counterOfferPeriod,
-      string calldata _metaEvidence,
-      bytes calldata _arbitratorExtraData
+      uint256 _challengePeriod,
+      string memory _metaEvidence,
+      bytes memory _arbitratorExtraData
   ) {
-    claimUtils = _claimUtils;
-    arbitrator = _arbitrator;
+    claimUtils = IClaimUtils(_claimUtils);
+    arbitrator = IArbitrator(_arbitrator);
     insurer = _insurer;
     counterOfferPeriod = _counterOfferPeriod;
+    challengePeriod = _challengePeriod;
     arbitratorExtraData = _arbitratorExtraData;
     emit MetaEvidence(0, _metaEvidence);
   }
@@ -225,7 +227,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   }
 
   // arbitrator is trusted
-  function rule(uint256 _disputeId, uint256 _ruling) external override {
+  function rule(uint256 _disputeId, uint256 _ruling) public virtual override {
     require(msg.sender == address(arbitrator), "Only arbitrator can rule");
     uint256 claimId = disputeIdToClaimId[_disputeId];
     Claim storage claim = claims[claimId];
