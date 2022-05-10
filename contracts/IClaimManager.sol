@@ -12,11 +12,26 @@ pragma solidity 0.8.12;
 // interface for insurer or claimant multisigs
 
 interface IClaimManager {
-  event ClaimCreated(uint256 _claimedAmount);
+  event ClaimCreated(uint256 _claimId, uint256 _claimedAmount, bytes32 _policyHash);
   event CounterOffer(uint256 _claimId, uint256 _counterOfferAmount);
   event ClaimResolved(uint256 _claimId, uint256 _settlement);
+  event CreatedPolicy(
+    bytes32 indexed policyHash,
+    address claimant,
+    address beneficiary,
+    uint256 coverage,
+    uint256 endTime,
+    string documentIpfsCidV1
+  );
 
-  function claimInsurance(uint256 _claimedAmount, address _beneficiary, string calldata _evidence) external;
+  function claimInsurance(
+    address _beneficiary,
+    uint256 _coverage,
+    uint256 _endTime,
+    string calldata _documentIpfsCidV1,
+    uint256 _claimedAmount,
+    string calldata _evidence
+    ) external;
 
   function acceptClaim(uint256 _claimId) external;
 
@@ -28,4 +43,12 @@ interface IClaimManager {
   function challengeCounterOffer(uint256 _claimId, string calldata _evidence) external payable;
 
   function submitEvidence(uint256 _claimId, string calldata _evidence) external;
+
+  function createPolicy(
+    address _claimant,
+    address _beneficiary,
+    uint256 _coverage,
+    uint256 _endTime,
+    string calldata _documentIpfsCidV1
+  ) external returns (bytes32 policyHash);
 }
