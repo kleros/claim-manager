@@ -37,7 +37,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   }
 
   IClaimUtils public immutable claimUtils;
-  address public immutable insurer;
+  address public insurer;
   IArbitrator public immutable arbitrator;
   uint256 public immutable counterOfferPeriod; // t-0 to insurer making a counter offer
   uint256 public immutable challengePeriod; // counter offer to challenge or accept
@@ -262,5 +262,10 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
       emit ClaimResolved(claimId, claim.counterOfferAmount);
       claimUtils.payOutClaim(claim.beneficiary, claim.counterOfferAmount);
     }
+  }
+
+  function changeInsurer(address _insurer) external {
+    require(msg.sender == insurer, "Only insurer can change insurer");
+    insurer = _insurer;
   }
 }

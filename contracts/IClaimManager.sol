@@ -51,4 +51,6 @@ interface IClaimManager {
     uint256 _endTime,
     string calldata _documentIpfsCidV1
   ) external returns (bytes32 policyHash);
+
+  function changeInsurer(address _insurer) external;
 }
