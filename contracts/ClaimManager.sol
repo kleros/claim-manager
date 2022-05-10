@@ -36,29 +36,7 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     ClaimStatus status;
   }
 
-  enum Party {
-      None, // Party per default when there is no challenger or requester. Also used for unconclusive ruling.
-      Denial, // Party that made the request to change a status.
-      AcceptClaim, // Party that challenges the request to change a status.
-      AcceptCounterOffer 
-    }
-
-  struct Round {
-    Party sideFunded; // Stores the side that successfully paid the appeal fees in the latest round. Note that if both sides have paid a new round is created.
-    uint256 feeRewards; // Sum of reimbursable fees and stake rewards available to the parties that made contributions to the side that ultimately wins a dispute.
-    uint256[3] amountPaid; // Tracks the sum paid for each Party in this round.
-  }
-
   // EVENTS
-
-  // _contributor is redundant because it's msg.sender. _contribution is needed because of refunds
-  event Contribution(uint256 _claimId,
-    uint256 _roundId,
-    address indexed _contributor,
-    uint256 _contribution,
-    Party _side
-  );
-
   event CreatedPolicy(
     bytes32 indexed policyHash,
     address claimant,
@@ -80,12 +58,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
   mapping(uint256 => uint256) public disputeIdToClaimId;
   mapping(bytes32 => bool) public policyWithHashExists;
 
-  // Appealing / contribution related data (unused)
-  /** rounds[claimId][round]
-  mapping(uint256 => mapping(uint256 => Round)) public rounds;
-  // contributions[claimId][round][contributor][party]
-  mapping(uint256 => mapping(uint256 => mapping(address => uint256[3]))) public contributions;
-  */
   constructor(
       address _claimUtils,
       address _arbitrator,
@@ -132,7 +104,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
 
   /**
    * intended evidence:
-   * proof that claimant is authorized by the DAO to make this claim
    * proof of the damage
    * arguments defending the damage warrants a compensation
    * and an estimation of the compensation required by the terms of the policy
