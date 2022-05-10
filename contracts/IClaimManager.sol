@@ -12,7 +12,7 @@ pragma solidity 0.8.12;
 // interface for insurer or claimant multisigs
 
 interface IClaimManager {
-  event ClaimCreated(uint256 _claimedAmount);
+  event ClaimCreated(uint256 _claimId, uint256 _claimedAmount, bytes32 _policyHash);
   event CounterOffer(uint256 _claimId, uint256 _counterOfferAmount);
   event ClaimResolved(uint256 _claimId, uint256 _settlement);
 

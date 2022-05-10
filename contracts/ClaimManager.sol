@@ -145,17 +145,18 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     uint256 _claimedAmount,
     string calldata _evidence
     ) external {
-    require(policyWithHashExists[keccak256(abi.encodePacked(
+    bytes32 policyHash = keccak256(abi.encodePacked(
       msg.sender,
       _beneficiary,
       _coverage,
       _endTime,
       _documentIpfsCidV1
-      ))], "Policy does not exist");
+    ));
+    require(policyWithHashExists[policyHash], "Policy does not exist");
     require(block.timestamp <= _endTime, "Policy has expired");
     require(_claimedAmount <= _coverage, "Claim amount larger than coverage");
 
-    Claim storage claim = claims[claimCount++];
+    Claim storage claim = claims[claimCount];
     claim.claimant = msg.sender;
     claim.beneficiary = _beneficiary;
     claim.claimedAmount = _claimedAmount;
@@ -163,8 +164,9 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     claim.status = ClaimStatus.Claimed;
 
     // evidenceGroupId can just be the id of the claim
-    emit Evidence(arbitrator, claimCount - 1, msg.sender, _evidence);
-    emit ClaimCreated(_claimedAmount);
+    emit Evidence(arbitrator, claimCount, msg.sender, _evidence);
+    emit ClaimCreated(claimCount, _claimedAmount, policyHash);
+    claimCount++;
   }
 
   function acceptClaim(uint256 _claimId) external {
