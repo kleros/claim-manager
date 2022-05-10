@@ -36,16 +36,6 @@ contract ClaimManager is IEvidence, IClaimManager, IArbitrable {
     ClaimStatus status;
   }
 
-  // EVENTS
-  event CreatedPolicy(
-    bytes32 indexed policyHash,
-    address claimant,
-    address beneficiary,
-    uint256 coverage,
-    uint256 endTime,
-    string documentIpfsCidV1
-    );
-
   IClaimUtils public immutable claimUtils;
   address public immutable insurer;
   IArbitrator public immutable arbitrator;
